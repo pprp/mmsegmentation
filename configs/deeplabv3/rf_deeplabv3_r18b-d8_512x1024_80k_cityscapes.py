@@ -9,3 +9,4 @@ model = dict(
         channels=128,
     ),
     auxiliary_head=dict(in_channels=256, channels=64))
+
