@@ -1,8 +1,3 @@
-_base_ = [
-    '../_base_/models/deeplabv3_r50-att-d8.py',
-    '../_base_/default_runtime.py', '../_base_/schedules/schedule_80k.py'
-]
-
 # dataset settings
 dataset_type = 'CityscapesDataset'
 data_root = '/HOME/scz0088/run/cityscapes/'
@@ -64,7 +59,7 @@ model = dict(
     type='EncoderDecoder',
     pretrained='open-mmlab://resnet50_v1c',
     backbone=dict(
-        type='ResNet_Att',
+        type='ResNetV1c',
         depth=50,
         num_stages=4,
         out_indices=(0, 1, 2, 3),
@@ -74,6 +69,7 @@ model = dict(
         norm_eval=False,
         style='pytorch',
         contract_dilation=True),
+        # att='RF'),
     decode_head=dict(
         type='ASPPHead',
         in_channels=2048,
@@ -126,6 +122,6 @@ optimizer_config = dict()
 # learning policy
 lr_config = dict(policy='poly', power=0.9, min_lr=1e-4, by_epoch=False)
 # runtime settings
-runner = dict(type='IterBasedRunner', max_iters=80000)
-checkpoint_config = dict(by_epoch=False, interval=8000)
-evaluation = dict(interval=8000, metric='mIoU', pre_eval=True)
+runner = dict(type='IterBasedRunner', max_iters=40000)
+checkpoint_config = dict(by_epoch=False, interval=4000, save_last=True, max_keep_ckpts=1)
+evaluation = dict(interval=4000, metric='mIoU', pre_eval=True)

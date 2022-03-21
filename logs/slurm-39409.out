@@ -1,0 +1,27 @@
+Traceback (most recent call last):
+  File "./tools/train.py", line 240, in <module>
+    main()
+  File "./tools/train.py", line 154, in main
+    init_dist(args.launcher, **cfg.dist_params)
+  File "/data/run01/scz0088/env/mmcv/mmcv/runner/dist_utils.py", line 18, in init_dist
+    _init_dist_pytorch(backend, **kwargs)
+  File "/data/run01/scz0088/env/mmcv/mmcv/runner/dist_utils.py", line 32, in _init_dist_pytorch
+    dist.init_process_group(backend=backend, **kwargs)
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/site-packages/torch/distributed/distributed_c10d.py", line 500, in init_process_group
+    store, rank, world_size = next(rendezvous_iterator)
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/site-packages/torch/distributed/rendezvous.py", line 190, in _env_rendezvous_handler
+    store = TCPStore(master_addr, master_port, world_size, start_daemon, timeout)
+RuntimeError: Address already in use
+Killing subprocess 29878
+Traceback (most recent call last):
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/runpy.py", line 193, in _run_module_as_main
+    "__main__", mod_spec)
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/runpy.py", line 85, in _run_code
+    exec(code, run_globals)
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/site-packages/torch/distributed/launch.py", line 340, in <module>
+    main()
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/site-packages/torch/distributed/launch.py", line 326, in main
+    sigkill_handler(signal.SIGTERM, None)  # not coming back
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/site-packages/torch/distributed/launch.py", line 301, in sigkill_handler
+    raise subprocess.CalledProcessError(returncode=last_return_code, cmd=cmd)
+subprocess.CalledProcessError: Command '['/HOME/scz0088/.conda/envs/hb/bin/python', '-u', './tools/train.py', '--local_rank=0', 'configs/deeplabv3/pprp_deeplabv3_r50-d8_512x1024_40k_cityscapes.py', '--launcher', 'pytorch', '--work-dir', './work_dirs/pprp_deeplabv3_r50-d8_512x1024_40k_cityscapes_baseline']' returned non-zero exit status 1.

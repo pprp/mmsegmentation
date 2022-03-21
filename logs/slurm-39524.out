@@ -1,0 +1,1168 @@
+2022-03-20 20:08:51,522 - mmseg - INFO - Multi-processing start method is `None`
+2022-03-20 20:08:51,523 - mmseg - INFO - OpenCV num_threads is `<built-in function getNumThreads>
+2022-03-20 20:08:51,637 - mmseg - INFO - Environment info:
+------------------------------------------------------------
+sys.platform: linux
+Python: 3.7.11 (default, Jul 27 2021, 14:32:16) [GCC 7.5.0]
+CUDA available: True
+GPU 0: NVIDIA GeForce RTX 3090
+CUDA_HOME: /data/apps/cuda/11.1
+NVCC: Build cuda_11.1.TC455_06.29069683_0
+GCC: gcc (GCC) 9.3.0
+PyTorch: 1.8.1
+PyTorch compiling details: PyTorch built with:
+  - GCC 7.3
+  - C++ Version: 201402
+  - Intel(R) oneAPI Math Kernel Library Version 2021.4-Product Build 20210904 for Intel(R) 64 architecture applications
+  - Intel(R) MKL-DNN v1.7.0 (Git Hash 7aed236906b1f7a05c0917e5257a1af05e9ff683)
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - NNPACK is enabled
+  - CPU capability usage: AVX2
+  - CUDA Runtime 11.1
+  - NVCC architecture flags: -gencode;arch=compute_37,code=sm_37;-gencode;arch=compute_50,code=sm_50;-gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_61,code=sm_61;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_80,code=sm_80;-gencode;arch=compute_86,code=sm_86;-gencode;arch=compute_37,code=compute_37
+  - CuDNN 8.0.5
+  - Magma 2.5.2
+  - Build settings: BLAS_INFO=mkl, BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/opt/rh/devtoolset-7/root/usr/bin/c++, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_KINETO -DUSE_FBGEMM -DUSE_QNNPACK -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, LAPACK_INFO=mkl, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.8.1, USE_CUDA=ON, USE_CUDNN=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=ON, USE_OPENMP=ON, 
+
+TorchVision: 0.9.1
+OpenCV: 4.5.4
+MMCV: 1.4.7
+MMCV Compiler: GCC 8.3
+MMCV CUDA Compiler: not available
+MMSegmentation: 0.22.1+7ba3ca9
+------------------------------------------------------------
+
+2022-03-20 20:08:51,637 - mmseg - INFO - Distributed training: True
+2022-03-20 20:08:51,843 - mmseg - INFO - Config:
+dataset_type = 'CityscapesDataset'
+data_root = '/HOME/scz0088/run/cityscapes/'
+img_norm_cfg = dict(
+    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+crop_size = (512, 1024)
+train_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(type='LoadAnnotations'),
+    dict(type='Resize', img_scale=(2048, 1024), ratio_range=(0.5, 2.0)),
+    dict(type='RandomCrop', crop_size=(512, 1024), cat_max_ratio=0.75),
+    dict(type='RandomFlip', prob=0.5),
+    dict(type='PhotoMetricDistortion'),
+    dict(
+        type='Normalize',
+        mean=[123.675, 116.28, 103.53],
+        std=[58.395, 57.12, 57.375],
+        to_rgb=True),
+    dict(type='Pad', size=(512, 1024), pad_val=0, seg_pad_val=255),
+    dict(type='DefaultFormatBundle'),
+    dict(type='Collect', keys=['img', 'gt_semantic_seg'])
+]
+test_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(
+        type='MultiScaleFlipAug',
+        img_scale=(2048, 1024),
+        flip=False,
+        transforms=[
+            dict(type='Resize', keep_ratio=True),
+            dict(type='RandomFlip'),
+            dict(
+                type='Normalize',
+                mean=[123.675, 116.28, 103.53],
+                std=[58.395, 57.12, 57.375],
+                to_rgb=True),
+            dict(type='ImageToTensor', keys=['img']),
+            dict(type='Collect', keys=['img'])
+        ])
+]
+data = dict(
+    samples_per_gpu=2,
+    workers_per_gpu=2,
+    train=dict(
+        type='CityscapesDataset',
+        data_root='/HOME/scz0088/run/cityscapes/',
+        img_dir='leftImg8bit/train',
+        ann_dir='gtFine/train',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(type='LoadAnnotations'),
+            dict(
+                type='Resize', img_scale=(2048, 1024), ratio_range=(0.5, 2.0)),
+            dict(type='RandomCrop', crop_size=(512, 1024), cat_max_ratio=0.75),
+            dict(type='RandomFlip', prob=0.5),
+            dict(type='PhotoMetricDistortion'),
+            dict(
+                type='Normalize',
+                mean=[123.675, 116.28, 103.53],
+                std=[58.395, 57.12, 57.375],
+                to_rgb=True),
+            dict(type='Pad', size=(512, 1024), pad_val=0, seg_pad_val=255),
+            dict(type='DefaultFormatBundle'),
+            dict(type='Collect', keys=['img', 'gt_semantic_seg'])
+        ]),
+    val=dict(
+        type='CityscapesDataset',
+        data_root='/HOME/scz0088/run/cityscapes/',
+        img_dir='leftImg8bit/val',
+        ann_dir='gtFine/val',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(
+                type='MultiScaleFlipAug',
+                img_scale=(2048, 1024),
+                flip=False,
+                transforms=[
+                    dict(type='Resize', keep_ratio=True),
+                    dict(type='RandomFlip'),
+                    dict(
+                        type='Normalize',
+                        mean=[123.675, 116.28, 103.53],
+                        std=[58.395, 57.12, 57.375],
+                        to_rgb=True),
+                    dict(type='ImageToTensor', keys=['img']),
+                    dict(type='Collect', keys=['img'])
+                ])
+        ]),
+    test=dict(
+        type='CityscapesDataset',
+        data_root='/HOME/scz0088/run/cityscapes/',
+        img_dir='leftImg8bit/val',
+        ann_dir='gtFine/val',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(
+                type='MultiScaleFlipAug',
+                img_scale=(2048, 1024),
+                flip=False,
+                transforms=[
+                    dict(type='Resize', keep_ratio=True),
+                    dict(type='RandomFlip'),
+                    dict(
+                        type='Normalize',
+                        mean=[123.675, 116.28, 103.53],
+                        std=[58.395, 57.12, 57.375],
+                        to_rgb=True),
+                    dict(type='ImageToTensor', keys=['img']),
+                    dict(type='Collect', keys=['img'])
+                ])
+        ]))
+norm_cfg = dict(type='SyncBN', requires_grad=True)
+model = dict(
+    type='EncoderDecoder',
+    pretrained='open-mmlab://resnet50_v1c',
+    backbone=dict(
+        type='ResNetV1c_Att',
+        depth=50,
+        num_stages=4,
+        out_indices=(0, 1, 2, 3),
+        dilations=(1, 1, 2, 4),
+        strides=(1, 2, 1, 1),
+        norm_cfg=dict(type='SyncBN', requires_grad=True),
+        norm_eval=False,
+        style='pytorch',
+        contract_dilation=True,
+        att='RF'),
+    decode_head=dict(
+        type='ASPPHead',
+        in_channels=2048,
+        in_index=3,
+        channels=512,
+        dilations=(1, 12, 24, 36),
+        dropout_ratio=0.1,
+        num_classes=19,
+        norm_cfg=dict(type='SyncBN', requires_grad=True),
+        align_corners=False,
+        loss_decode=dict(
+            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),
+    auxiliary_head=dict(
+        type='FCNHead',
+        in_channels=1024,
+        in_index=2,
+        channels=256,
+        num_convs=1,
+        concat_input=False,
+        dropout_ratio=0.1,
+        num_classes=19,
+        norm_cfg=dict(type='SyncBN', requires_grad=True),
+        align_corners=False,
+        loss_decode=dict(
+            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
+    train_cfg=dict(),
+    test_cfg=dict(mode='whole'))
+log_config = dict(
+    interval=50, hooks=[dict(type='TextLoggerHook', by_epoch=False)])
+dist_params = dict(backend='nccl')
+log_level = 'INFO'
+load_from = None
+resume_from = None
+workflow = [('train', 1)]
+cudnn_benchmark = True
+optimizer = dict(type='SGD', lr=0.005, momentum=0.9, weight_decay=0.0005)
+optimizer_config = dict()
+lr_config = dict(policy='poly', power=0.9, min_lr=0.0001, by_epoch=False)
+runner = dict(type='IterBasedRunner', max_iters=40000)
+checkpoint_config = dict(by_epoch=False, interval=4000)
+evaluation = dict(interval=8000, metric='mIoU', pre_eval=True)
+work_dir = './work_dirs/pprp_deeplabv3_r50-d8_512x1024_40k_cityscapes_baseline'
+gpu_ids = range(0, 1)
+auto_resume = False
+
+2022-03-20 20:08:51,844 - mmseg - INFO - Set random seed to 425918962, deterministic: False
+/data/run01/scz0088/project/mmsegmentation/mmseg/models/backbones/resnet_att.py:468: UserWarning: DeprecationWarning: pretrained is a deprecated, please use "init_cfg" instead
+  warnings.warn('DeprecationWarning: pretrained is a deprecated, '
+2022-03-20 20:08:52,583 - mmseg - INFO - initialize ResNetV1c_Att with init_cfg {'type': 'Pretrained', 'checkpoint': 'open-mmlab://resnet50_v1c'}
+2022-03-20 20:08:52,583 - mmcv - INFO - load model from: open-mmlab://resnet50_v1c
+2022-03-20 20:08:52,584 - mmcv - INFO - load checkpoint from openmmlab path: open-mmlab://resnet50_v1c
+2022-03-20 20:08:52,751 - mmcv - WARNING - The model and loaded state dict do not match exactly
+
+unexpected key in source state_dict: fc.weight, fc.bias
+
+missing keys in source state_dict: layer1.0.attention._ops.0.1.weight, layer1.0.attention._ops.0.2.weight, layer1.0.attention._ops.0.2.bias, layer1.0.attention._ops.0.2.running_mean, layer1.0.attention._ops.0.2.running_var, layer1.0.attention._ops.1.1.weight, layer1.0.attention._ops.1.2.weight, layer1.0.attention._ops.1.2.bias, layer1.0.attention._ops.1.2.running_mean, layer1.0.attention._ops.1.2.running_var, layer1.0.attention._ops.2.1.weight, layer1.0.attention._ops.2.2.weight, layer1.0.attention._ops.2.2.bias, layer1.0.attention._ops.2.2.running_mean, layer1.0.attention._ops.2.2.running_var, layer1.0.attention._ops.3.1.weight, layer1.0.attention._ops.3.2.weight, layer1.0.attention._ops.3.2.bias, layer1.0.attention._ops.3.2.running_mean, layer1.0.attention._ops.3.2.running_var, layer1.0.attention.bottle.weight, layer1.0.attention.conv1x1.weight, layer1.0.attention.se.fc.0.weight, layer1.0.attention.se.fc.2.weight, layer1.1.attention._ops.0.1.weight, layer1.1.attention._ops.0.2.weight, layer1.1.attention._ops.0.2.bias, layer1.1.attention._ops.0.2.running_mean, layer1.1.attention._ops.0.2.running_var, layer1.1.attention._ops.1.1.weight, layer1.1.attention._ops.1.2.weight, layer1.1.attention._ops.1.2.bias, layer1.1.attention._ops.1.2.running_mean, layer1.1.attention._ops.1.2.running_var, layer1.1.attention._ops.2.1.weight, layer1.1.attention._ops.2.2.weight, layer1.1.attention._ops.2.2.bias, layer1.1.attention._ops.2.2.running_mean, layer1.1.attention._ops.2.2.running_var, layer1.1.attention._ops.3.1.weight, layer1.1.attention._ops.3.2.weight, layer1.1.attention._ops.3.2.bias, layer1.1.attention._ops.3.2.running_mean, layer1.1.attention._ops.3.2.running_var, layer1.1.attention.bottle.weight, layer1.1.attention.conv1x1.weight, layer1.1.attention.se.fc.0.weight, layer1.1.attention.se.fc.2.weight, layer1.2.attention._ops.0.1.weight, layer1.2.attention._ops.0.2.weight, layer1.2.attention._ops.0.2.bias, layer1.2.attention._ops.0.2.running_mean, layer1.2.attention._ops.0.2.running_var, layer1.2.attention._ops.1.1.weight, layer1.2.attention._ops.1.2.weight, layer1.2.attention._ops.1.2.bias, layer1.2.attention._ops.1.2.running_mean, layer1.2.attention._ops.1.2.running_var, layer1.2.attention._ops.2.1.weight, layer1.2.attention._ops.2.2.weight, layer1.2.attention._ops.2.2.bias, layer1.2.attention._ops.2.2.running_mean, layer1.2.attention._ops.2.2.running_var, layer1.2.attention._ops.3.1.weight, layer1.2.attention._ops.3.2.weight, layer1.2.attention._ops.3.2.bias, layer1.2.attention._ops.3.2.running_mean, layer1.2.attention._ops.3.2.running_var, layer1.2.attention.bottle.weight, layer1.2.attention.conv1x1.weight, layer1.2.attention.se.fc.0.weight, layer1.2.attention.se.fc.2.weight, layer2.0.attention._ops.0.1.weight, layer2.0.attention._ops.0.2.weight, layer2.0.attention._ops.0.2.bias, layer2.0.attention._ops.0.2.running_mean, layer2.0.attention._ops.0.2.running_var, layer2.0.attention._ops.1.1.weight, layer2.0.attention._ops.1.2.weight, layer2.0.attention._ops.1.2.bias, layer2.0.attention._ops.1.2.running_mean, layer2.0.attention._ops.1.2.running_var, layer2.0.attention._ops.2.1.weight, layer2.0.attention._ops.2.2.weight, layer2.0.attention._ops.2.2.bias, layer2.0.attention._ops.2.2.running_mean, layer2.0.attention._ops.2.2.running_var, layer2.0.attention._ops.3.1.weight, layer2.0.attention._ops.3.2.weight, layer2.0.attention._ops.3.2.bias, layer2.0.attention._ops.3.2.running_mean, layer2.0.attention._ops.3.2.running_var, layer2.0.attention.bottle.weight, layer2.0.attention.conv1x1.weight, layer2.0.attention.se.fc.0.weight, layer2.0.attention.se.fc.2.weight, layer2.1.attention._ops.0.1.weight, layer2.1.attention._ops.0.2.weight, layer2.1.attention._ops.0.2.bias, layer2.1.attention._ops.0.2.running_mean, layer2.1.attention._ops.0.2.running_var, layer2.1.attention._ops.1.1.weight, layer2.1.attention._ops.1.2.weight, layer2.1.attention._ops.1.2.bias, layer2.1.attention._ops.1.2.running_mean, layer2.1.attention._ops.1.2.running_var, layer2.1.attention._ops.2.1.weight, layer2.1.attention._ops.2.2.weight, layer2.1.attention._ops.2.2.bias, layer2.1.attention._ops.2.2.running_mean, layer2.1.attention._ops.2.2.running_var, layer2.1.attention._ops.3.1.weight, layer2.1.attention._ops.3.2.weight, layer2.1.attention._ops.3.2.bias, layer2.1.attention._ops.3.2.running_mean, layer2.1.attention._ops.3.2.running_var, layer2.1.attention.bottle.weight, layer2.1.attention.conv1x1.weight, layer2.1.attention.se.fc.0.weight, layer2.1.attention.se.fc.2.weight, layer2.2.attention._ops.0.1.weight, layer2.2.attention._ops.0.2.weight, layer2.2.attention._ops.0.2.bias, layer2.2.attention._ops.0.2.running_mean, layer2.2.attention._ops.0.2.running_var, layer2.2.attention._ops.1.1.weight, layer2.2.attention._ops.1.2.weight, layer2.2.attention._ops.1.2.bias, layer2.2.attention._ops.1.2.running_mean, layer2.2.attention._ops.1.2.running_var, layer2.2.attention._ops.2.1.weight, layer2.2.attention._ops.2.2.weight, layer2.2.attention._ops.2.2.bias, layer2.2.attention._ops.2.2.running_mean, layer2.2.attention._ops.2.2.running_var, layer2.2.attention._ops.3.1.weight, layer2.2.attention._ops.3.2.weight, layer2.2.attention._ops.3.2.bias, layer2.2.attention._ops.3.2.running_mean, layer2.2.attention._ops.3.2.running_var, layer2.2.attention.bottle.weight, layer2.2.attention.conv1x1.weight, layer2.2.attention.se.fc.0.weight, layer2.2.attention.se.fc.2.weight, layer2.3.attention._ops.0.1.weight, layer2.3.attention._ops.0.2.weight, layer2.3.attention._ops.0.2.bias, layer2.3.attention._ops.0.2.running_mean, layer2.3.attention._ops.0.2.running_var, layer2.3.attention._ops.1.1.weight, layer2.3.attention._ops.1.2.weight, layer2.3.attention._ops.1.2.bias, layer2.3.attention._ops.1.2.running_mean, layer2.3.attention._ops.1.2.running_var, layer2.3.attention._ops.2.1.weight, layer2.3.attention._ops.2.2.weight, layer2.3.attention._ops.2.2.bias, layer2.3.attention._ops.2.2.running_mean, layer2.3.attention._ops.2.2.running_var, layer2.3.attention._ops.3.1.weight, layer2.3.attention._ops.3.2.weight, layer2.3.attention._ops.3.2.bias, layer2.3.attention._ops.3.2.running_mean, layer2.3.attention._ops.3.2.running_var, layer2.3.attention.bottle.weight, layer2.3.attention.conv1x1.weight, layer2.3.attention.se.fc.0.weight, layer2.3.attention.se.fc.2.weight, layer3.0.attention._ops.0.1.weight, layer3.0.attention._ops.0.2.weight, layer3.0.attention._ops.0.2.bias, layer3.0.attention._ops.0.2.running_mean, layer3.0.attention._ops.0.2.running_var, layer3.0.attention._ops.1.1.weight, layer3.0.attention._ops.1.2.weight, layer3.0.attention._ops.1.2.bias, layer3.0.attention._ops.1.2.running_mean, layer3.0.attention._ops.1.2.running_var, layer3.0.attention._ops.2.1.weight, layer3.0.attention._ops.2.2.weight, layer3.0.attention._ops.2.2.bias, layer3.0.attention._ops.2.2.running_mean, layer3.0.attention._ops.2.2.running_var, layer3.0.attention._ops.3.1.weight, layer3.0.attention._ops.3.2.weight, layer3.0.attention._ops.3.2.bias, layer3.0.attention._ops.3.2.running_mean, layer3.0.attention._ops.3.2.running_var, layer3.0.attention.bottle.weight, layer3.0.attention.conv1x1.weight, layer3.0.attention.se.fc.0.weight, layer3.0.attention.se.fc.2.weight, layer3.1.attention._ops.0.1.weight, layer3.1.attention._ops.0.2.weight, layer3.1.attention._ops.0.2.bias, layer3.1.attention._ops.0.2.running_mean, layer3.1.attention._ops.0.2.running_var, layer3.1.attention._ops.1.1.weight, layer3.1.attention._ops.1.2.weight, layer3.1.attention._ops.1.2.bias, layer3.1.attention._ops.1.2.running_mean, layer3.1.attention._ops.1.2.running_var, layer3.1.attention._ops.2.1.weight, layer3.1.attention._ops.2.2.weight, layer3.1.attention._ops.2.2.bias, layer3.1.attention._ops.2.2.running_mean, layer3.1.attention._ops.2.2.running_var, layer3.1.attention._ops.3.1.weight, layer3.1.attention._ops.3.2.weight, layer3.1.attention._ops.3.2.bias, layer3.1.attention._ops.3.2.running_mean, layer3.1.attention._ops.3.2.running_var, layer3.1.attention.bottle.weight, layer3.1.attention.conv1x1.weight, layer3.1.attention.se.fc.0.weight, layer3.1.attention.se.fc.2.weight, layer3.2.attention._ops.0.1.weight, layer3.2.attention._ops.0.2.weight, layer3.2.attention._ops.0.2.bias, layer3.2.attention._ops.0.2.running_mean, layer3.2.attention._ops.0.2.running_var, layer3.2.attention._ops.1.1.weight, layer3.2.attention._ops.1.2.weight, layer3.2.attention._ops.1.2.bias, layer3.2.attention._ops.1.2.running_mean, layer3.2.attention._ops.1.2.running_var, layer3.2.attention._ops.2.1.weight, layer3.2.attention._ops.2.2.weight, layer3.2.attention._ops.2.2.bias, layer3.2.attention._ops.2.2.running_mean, layer3.2.attention._ops.2.2.running_var, layer3.2.attention._ops.3.1.weight, layer3.2.attention._ops.3.2.weight, layer3.2.attention._ops.3.2.bias, layer3.2.attention._ops.3.2.running_mean, layer3.2.attention._ops.3.2.running_var, layer3.2.attention.bottle.weight, layer3.2.attention.conv1x1.weight, layer3.2.attention.se.fc.0.weight, layer3.2.attention.se.fc.2.weight, layer3.3.attention._ops.0.1.weight, layer3.3.attention._ops.0.2.weight, layer3.3.attention._ops.0.2.bias, layer3.3.attention._ops.0.2.running_mean, layer3.3.attention._ops.0.2.running_var, layer3.3.attention._ops.1.1.weight, layer3.3.attention._ops.1.2.weight, layer3.3.attention._ops.1.2.bias, layer3.3.attention._ops.1.2.running_mean, layer3.3.attention._ops.1.2.running_var, layer3.3.attention._ops.2.1.weight, layer3.3.attention._ops.2.2.weight, layer3.3.attention._ops.2.2.bias, layer3.3.attention._ops.2.2.running_mean, layer3.3.attention._ops.2.2.running_var, layer3.3.attention._ops.3.1.weight, layer3.3.attention._ops.3.2.weight, layer3.3.attention._ops.3.2.bias, layer3.3.attention._ops.3.2.running_mean, layer3.3.attention._ops.3.2.running_var, layer3.3.attention.bottle.weight, layer3.3.attention.conv1x1.weight, layer3.3.attention.se.fc.0.weight, layer3.3.attention.se.fc.2.weight, layer3.4.attention._ops.0.1.weight, layer3.4.attention._ops.0.2.weight, layer3.4.attention._ops.0.2.bias, layer3.4.attention._ops.0.2.running_mean, layer3.4.attention._ops.0.2.running_var, layer3.4.attention._ops.1.1.weight, layer3.4.attention._ops.1.2.weight, layer3.4.attention._ops.1.2.bias, layer3.4.attention._ops.1.2.running_mean, layer3.4.attention._ops.1.2.running_var, layer3.4.attention._ops.2.1.weight, layer3.4.attention._ops.2.2.weight, layer3.4.attention._ops.2.2.bias, layer3.4.attention._ops.2.2.running_mean, layer3.4.attention._ops.2.2.running_var, layer3.4.attention._ops.3.1.weight, layer3.4.attention._ops.3.2.weight, layer3.4.attention._ops.3.2.bias, layer3.4.attention._ops.3.2.running_mean, layer3.4.attention._ops.3.2.running_var, layer3.4.attention.bottle.weight, layer3.4.attention.conv1x1.weight, layer3.4.attention.se.fc.0.weight, layer3.4.attention.se.fc.2.weight, layer3.5.attention._ops.0.1.weight, layer3.5.attention._ops.0.2.weight, layer3.5.attention._ops.0.2.bias, layer3.5.attention._ops.0.2.running_mean, layer3.5.attention._ops.0.2.running_var, layer3.5.attention._ops.1.1.weight, layer3.5.attention._ops.1.2.weight, layer3.5.attention._ops.1.2.bias, layer3.5.attention._ops.1.2.running_mean, layer3.5.attention._ops.1.2.running_var, layer3.5.attention._ops.2.1.weight, layer3.5.attention._ops.2.2.weight, layer3.5.attention._ops.2.2.bias, layer3.5.attention._ops.2.2.running_mean, layer3.5.attention._ops.2.2.running_var, layer3.5.attention._ops.3.1.weight, layer3.5.attention._ops.3.2.weight, layer3.5.attention._ops.3.2.bias, layer3.5.attention._ops.3.2.running_mean, layer3.5.attention._ops.3.2.running_var, layer3.5.attention.bottle.weight, layer3.5.attention.conv1x1.weight, layer3.5.attention.se.fc.0.weight, layer3.5.attention.se.fc.2.weight, layer4.0.attention._ops.0.1.weight, layer4.0.attention._ops.0.2.weight, layer4.0.attention._ops.0.2.bias, layer4.0.attention._ops.0.2.running_mean, layer4.0.attention._ops.0.2.running_var, layer4.0.attention._ops.1.1.weight, layer4.0.attention._ops.1.2.weight, layer4.0.attention._ops.1.2.bias, layer4.0.attention._ops.1.2.running_mean, layer4.0.attention._ops.1.2.running_var, layer4.0.attention._ops.2.1.weight, layer4.0.attention._ops.2.2.weight, layer4.0.attention._ops.2.2.bias, layer4.0.attention._ops.2.2.running_mean, layer4.0.attention._ops.2.2.running_var, layer4.0.attention._ops.3.1.weight, layer4.0.attention._ops.3.2.weight, layer4.0.attention._ops.3.2.bias, layer4.0.attention._ops.3.2.running_mean, layer4.0.attention._ops.3.2.running_var, layer4.0.attention.bottle.weight, layer4.0.attention.conv1x1.weight, layer4.0.attention.se.fc.0.weight, layer4.0.attention.se.fc.2.weight, layer4.1.attention._ops.0.1.weight, layer4.1.attention._ops.0.2.weight, layer4.1.attention._ops.0.2.bias, layer4.1.attention._ops.0.2.running_mean, layer4.1.attention._ops.0.2.running_var, layer4.1.attention._ops.1.1.weight, layer4.1.attention._ops.1.2.weight, layer4.1.attention._ops.1.2.bias, layer4.1.attention._ops.1.2.running_mean, layer4.1.attention._ops.1.2.running_var, layer4.1.attention._ops.2.1.weight, layer4.1.attention._ops.2.2.weight, layer4.1.attention._ops.2.2.bias, layer4.1.attention._ops.2.2.running_mean, layer4.1.attention._ops.2.2.running_var, layer4.1.attention._ops.3.1.weight, layer4.1.attention._ops.3.2.weight, layer4.1.attention._ops.3.2.bias, layer4.1.attention._ops.3.2.running_mean, layer4.1.attention._ops.3.2.running_var, layer4.1.attention.bottle.weight, layer4.1.attention.conv1x1.weight, layer4.1.attention.se.fc.0.weight, layer4.1.attention.se.fc.2.weight, layer4.2.attention._ops.0.1.weight, layer4.2.attention._ops.0.2.weight, layer4.2.attention._ops.0.2.bias, layer4.2.attention._ops.0.2.running_mean, layer4.2.attention._ops.0.2.running_var, layer4.2.attention._ops.1.1.weight, layer4.2.attention._ops.1.2.weight, layer4.2.attention._ops.1.2.bias, layer4.2.attention._ops.1.2.running_mean, layer4.2.attention._ops.1.2.running_var, layer4.2.attention._ops.2.1.weight, layer4.2.attention._ops.2.2.weight, layer4.2.attention._ops.2.2.bias, layer4.2.attention._ops.2.2.running_mean, layer4.2.attention._ops.2.2.running_var, layer4.2.attention._ops.3.1.weight, layer4.2.attention._ops.3.2.weight, layer4.2.attention._ops.3.2.bias, layer4.2.attention._ops.3.2.running_mean, layer4.2.attention._ops.3.2.running_var, layer4.2.attention.bottle.weight, layer4.2.attention.conv1x1.weight, layer4.2.attention.se.fc.0.weight, layer4.2.attention.se.fc.2.weight
+
+2022-03-20 20:08:52,777 - mmseg - INFO - initialize ASPPHead with init_cfg {'type': 'Normal', 'std': 0.01, 'override': {'name': 'conv_seg'}}
+2022-03-20 20:08:52,904 - mmseg - INFO - initialize FCNHead with init_cfg {'type': 'Normal', 'std': 0.01, 'override': {'name': 'conv_seg'}}
+2022-03-20 20:08:52,910 - mmseg - INFO - EncoderDecoder(
+  (backbone): ResNetV1c_Att(
+    (stem): Sequential(
+      (0): Conv2d(3, 32, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+      (1): SyncBatchNorm(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (2): ReLU(inplace=True)
+      (3): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (4): SyncBatchNorm(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (5): ReLU(inplace=True)
+      (6): Conv2d(32, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (7): SyncBatchNorm(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (8): ReLU(inplace=True)
+    )
+    (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+    (layer1): ResLayer(
+      (0): Bottleneck(
+        (conv1): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): SyncBatchNorm(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): SyncBatchNorm(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): SyncBatchNorm(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (downsample): Sequential(
+          (0): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (1): SyncBatchNorm(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (attention): ReceptiveFieldAttention(
+          (_ops): ModuleList(
+            (0): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(16, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=4, bias=False)
+              (2): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (1): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(16, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=4, bias=False)
+              (2): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (2): Sequential(
+              (0): MaxPool2d(kernel_size=5, stride=1, padding=2, dilation=1, ceil_mode=False)
+              (1): Conv2d(16, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=4, bias=False)
+              (2): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (3): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(16, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=4, bias=False)
+              (2): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (4): NoiseOp()
+            (5): NoiseOp()
+          )
+          (bottle): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (conv1x1): Conv2d(48, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (se): SE(
+            (avg_pool): AdaptiveAvgPool2d(output_size=1)
+            (fc): Sequential(
+              (0): Linear(in_features=64, out_features=16, bias=False)
+              (1): ReLU(inplace=True)
+              (2): Linear(in_features=16, out_features=64, bias=False)
+              (3): Sigmoid()
+            )
+          )
+        )
+      )
+      (1): Bottleneck(
+        (conv1): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): SyncBatchNorm(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): SyncBatchNorm(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): SyncBatchNorm(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (attention): ReceptiveFieldAttention(
+          (_ops): ModuleList(
+            (0): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(16, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=4, bias=False)
+              (2): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (1): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(16, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=4, bias=False)
+              (2): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (2): Sequential(
+              (0): MaxPool2d(kernel_size=5, stride=1, padding=2, dilation=1, ceil_mode=False)
+              (1): Conv2d(16, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=4, bias=False)
+              (2): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (3): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(16, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=4, bias=False)
+              (2): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (4): NoiseOp()
+            (5): NoiseOp()
+          )
+          (bottle): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (conv1x1): Conv2d(48, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (se): SE(
+            (avg_pool): AdaptiveAvgPool2d(output_size=1)
+            (fc): Sequential(
+              (0): Linear(in_features=64, out_features=16, bias=False)
+              (1): ReLU(inplace=True)
+              (2): Linear(in_features=16, out_features=64, bias=False)
+              (3): Sigmoid()
+            )
+          )
+        )
+      )
+      (2): Bottleneck(
+        (conv1): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): SyncBatchNorm(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): SyncBatchNorm(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): SyncBatchNorm(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (attention): ReceptiveFieldAttention(
+          (_ops): ModuleList(
+            (0): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(16, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=4, bias=False)
+              (2): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (1): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(16, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=4, bias=False)
+              (2): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (2): Sequential(
+              (0): MaxPool2d(kernel_size=5, stride=1, padding=2, dilation=1, ceil_mode=False)
+              (1): Conv2d(16, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=4, bias=False)
+              (2): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (3): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(16, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=4, bias=False)
+              (2): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (4): NoiseOp()
+            (5): NoiseOp()
+          )
+          (bottle): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (conv1x1): Conv2d(48, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (se): SE(
+            (avg_pool): AdaptiveAvgPool2d(output_size=1)
+            (fc): Sequential(
+              (0): Linear(in_features=64, out_features=16, bias=False)
+              (1): ReLU(inplace=True)
+              (2): Linear(in_features=16, out_features=64, bias=False)
+              (3): Sigmoid()
+            )
+          )
+        )
+      )
+    )
+    (layer2): ResLayer(
+      (0): Bottleneck(
+        (conv1): Conv2d(256, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): SyncBatchNorm(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+        (bn2): SyncBatchNorm(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): SyncBatchNorm(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (downsample): Sequential(
+          (0): Conv2d(256, 512, kernel_size=(1, 1), stride=(2, 2), bias=False)
+          (1): SyncBatchNorm(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (attention): ReceptiveFieldAttention(
+          (_ops): ModuleList(
+            (0): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=8, bias=False)
+              (2): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (1): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=8, bias=False)
+              (2): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (2): Sequential(
+              (0): MaxPool2d(kernel_size=5, stride=1, padding=2, dilation=1, ceil_mode=False)
+              (1): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=8, bias=False)
+              (2): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (3): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=8, bias=False)
+              (2): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (4): NoiseOp()
+            (5): NoiseOp()
+          )
+          (bottle): Conv2d(128, 32, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (conv1x1): Conv2d(96, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (se): SE(
+            (avg_pool): AdaptiveAvgPool2d(output_size=1)
+            (fc): Sequential(
+              (0): Linear(in_features=128, out_features=32, bias=False)
+              (1): ReLU(inplace=True)
+              (2): Linear(in_features=32, out_features=128, bias=False)
+              (3): Sigmoid()
+            )
+          )
+        )
+      )
+      (1): Bottleneck(
+        (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): SyncBatchNorm(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): SyncBatchNorm(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): SyncBatchNorm(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (attention): ReceptiveFieldAttention(
+          (_ops): ModuleList(
+            (0): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=8, bias=False)
+              (2): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (1): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=8, bias=False)
+              (2): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (2): Sequential(
+              (0): MaxPool2d(kernel_size=5, stride=1, padding=2, dilation=1, ceil_mode=False)
+              (1): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=8, bias=False)
+              (2): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (3): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=8, bias=False)
+              (2): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (4): NoiseOp()
+            (5): NoiseOp()
+          )
+          (bottle): Conv2d(128, 32, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (conv1x1): Conv2d(96, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (se): SE(
+            (avg_pool): AdaptiveAvgPool2d(output_size=1)
+            (fc): Sequential(
+              (0): Linear(in_features=128, out_features=32, bias=False)
+              (1): ReLU(inplace=True)
+              (2): Linear(in_features=32, out_features=128, bias=False)
+              (3): Sigmoid()
+            )
+          )
+        )
+      )
+      (2): Bottleneck(
+        (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): SyncBatchNorm(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): SyncBatchNorm(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): SyncBatchNorm(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (attention): ReceptiveFieldAttention(
+          (_ops): ModuleList(
+            (0): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=8, bias=False)
+              (2): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (1): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=8, bias=False)
+              (2): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (2): Sequential(
+              (0): MaxPool2d(kernel_size=5, stride=1, padding=2, dilation=1, ceil_mode=False)
+              (1): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=8, bias=False)
+              (2): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (3): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=8, bias=False)
+              (2): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (4): NoiseOp()
+            (5): NoiseOp()
+          )
+          (bottle): Conv2d(128, 32, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (conv1x1): Conv2d(96, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (se): SE(
+            (avg_pool): AdaptiveAvgPool2d(output_size=1)
+            (fc): Sequential(
+              (0): Linear(in_features=128, out_features=32, bias=False)
+              (1): ReLU(inplace=True)
+              (2): Linear(in_features=32, out_features=128, bias=False)
+              (3): Sigmoid()
+            )
+          )
+        )
+      )
+      (3): Bottleneck(
+        (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): SyncBatchNorm(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): SyncBatchNorm(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): SyncBatchNorm(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (attention): ReceptiveFieldAttention(
+          (_ops): ModuleList(
+            (0): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=8, bias=False)
+              (2): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (1): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=8, bias=False)
+              (2): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (2): Sequential(
+              (0): MaxPool2d(kernel_size=5, stride=1, padding=2, dilation=1, ceil_mode=False)
+              (1): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=8, bias=False)
+              (2): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (3): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=8, bias=False)
+              (2): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (4): NoiseOp()
+            (5): NoiseOp()
+          )
+          (bottle): Conv2d(128, 32, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (conv1x1): Conv2d(96, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (se): SE(
+            (avg_pool): AdaptiveAvgPool2d(output_size=1)
+            (fc): Sequential(
+              (0): Linear(in_features=128, out_features=32, bias=False)
+              (1): ReLU(inplace=True)
+              (2): Linear(in_features=32, out_features=128, bias=False)
+              (3): Sigmoid()
+            )
+          )
+        )
+      )
+    )
+    (layer3): ResLayer(
+      (0): Bottleneck(
+        (conv1): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): SyncBatchNorm(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): SyncBatchNorm(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): SyncBatchNorm(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (downsample): Sequential(
+          (0): Conv2d(512, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (1): SyncBatchNorm(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (attention): ReceptiveFieldAttention(
+          (_ops): ModuleList(
+            (0): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (1): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (2): Sequential(
+              (0): MaxPool2d(kernel_size=5, stride=1, padding=2, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (3): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (4): NoiseOp()
+            (5): NoiseOp()
+          )
+          (bottle): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (conv1x1): Conv2d(192, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (se): SE(
+            (avg_pool): AdaptiveAvgPool2d(output_size=1)
+            (fc): Sequential(
+              (0): Linear(in_features=256, out_features=64, bias=False)
+              (1): ReLU(inplace=True)
+              (2): Linear(in_features=64, out_features=256, bias=False)
+              (3): Sigmoid()
+            )
+          )
+        )
+      )
+      (1): Bottleneck(
+        (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): SyncBatchNorm(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(2, 2), dilation=(2, 2), bias=False)
+        (bn2): SyncBatchNorm(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): SyncBatchNorm(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (attention): ReceptiveFieldAttention(
+          (_ops): ModuleList(
+            (0): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (1): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (2): Sequential(
+              (0): MaxPool2d(kernel_size=5, stride=1, padding=2, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (3): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (4): NoiseOp()
+            (5): NoiseOp()
+          )
+          (bottle): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (conv1x1): Conv2d(192, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (se): SE(
+            (avg_pool): AdaptiveAvgPool2d(output_size=1)
+            (fc): Sequential(
+              (0): Linear(in_features=256, out_features=64, bias=False)
+              (1): ReLU(inplace=True)
+              (2): Linear(in_features=64, out_features=256, bias=False)
+              (3): Sigmoid()
+            )
+          )
+        )
+      )
+      (2): Bottleneck(
+        (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): SyncBatchNorm(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(2, 2), dilation=(2, 2), bias=False)
+        (bn2): SyncBatchNorm(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): SyncBatchNorm(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (attention): ReceptiveFieldAttention(
+          (_ops): ModuleList(
+            (0): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (1): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (2): Sequential(
+              (0): MaxPool2d(kernel_size=5, stride=1, padding=2, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (3): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (4): NoiseOp()
+            (5): NoiseOp()
+          )
+          (bottle): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (conv1x1): Conv2d(192, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (se): SE(
+            (avg_pool): AdaptiveAvgPool2d(output_size=1)
+            (fc): Sequential(
+              (0): Linear(in_features=256, out_features=64, bias=False)
+              (1): ReLU(inplace=True)
+              (2): Linear(in_features=64, out_features=256, bias=False)
+              (3): Sigmoid()
+            )
+          )
+        )
+      )
+      (3): Bottleneck(
+        (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): SyncBatchNorm(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(2, 2), dilation=(2, 2), bias=False)
+        (bn2): SyncBatchNorm(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): SyncBatchNorm(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (attention): ReceptiveFieldAttention(
+          (_ops): ModuleList(
+            (0): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (1): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (2): Sequential(
+              (0): MaxPool2d(kernel_size=5, stride=1, padding=2, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (3): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (4): NoiseOp()
+            (5): NoiseOp()
+          )
+          (bottle): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (conv1x1): Conv2d(192, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (se): SE(
+            (avg_pool): AdaptiveAvgPool2d(output_size=1)
+            (fc): Sequential(
+              (0): Linear(in_features=256, out_features=64, bias=False)
+              (1): ReLU(inplace=True)
+              (2): Linear(in_features=64, out_features=256, bias=False)
+              (3): Sigmoid()
+            )
+          )
+        )
+      )
+      (4): Bottleneck(
+        (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): SyncBatchNorm(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(2, 2), dilation=(2, 2), bias=False)
+        (bn2): SyncBatchNorm(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): SyncBatchNorm(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (attention): ReceptiveFieldAttention(
+          (_ops): ModuleList(
+            (0): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (1): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (2): Sequential(
+              (0): MaxPool2d(kernel_size=5, stride=1, padding=2, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (3): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (4): NoiseOp()
+            (5): NoiseOp()
+          )
+          (bottle): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (conv1x1): Conv2d(192, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (se): SE(
+            (avg_pool): AdaptiveAvgPool2d(output_size=1)
+            (fc): Sequential(
+              (0): Linear(in_features=256, out_features=64, bias=False)
+              (1): ReLU(inplace=True)
+              (2): Linear(in_features=64, out_features=256, bias=False)
+              (3): Sigmoid()
+            )
+          )
+        )
+      )
+      (5): Bottleneck(
+        (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): SyncBatchNorm(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(2, 2), dilation=(2, 2), bias=False)
+        (bn2): SyncBatchNorm(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): SyncBatchNorm(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (attention): ReceptiveFieldAttention(
+          (_ops): ModuleList(
+            (0): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (1): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (2): Sequential(
+              (0): MaxPool2d(kernel_size=5, stride=1, padding=2, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (3): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16, bias=False)
+              (2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (4): NoiseOp()
+            (5): NoiseOp()
+          )
+          (bottle): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (conv1x1): Conv2d(192, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (se): SE(
+            (avg_pool): AdaptiveAvgPool2d(output_size=1)
+            (fc): Sequential(
+              (0): Linear(in_features=256, out_features=64, bias=False)
+              (1): ReLU(inplace=True)
+              (2): Linear(in_features=64, out_features=256, bias=False)
+              (3): Sigmoid()
+            )
+          )
+        )
+      )
+    )
+    (layer4): ResLayer(
+      (0): Bottleneck(
+        (conv1): Conv2d(1024, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): SyncBatchNorm(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(2, 2), dilation=(2, 2), bias=False)
+        (bn2): SyncBatchNorm(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): SyncBatchNorm(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (downsample): Sequential(
+          (0): Conv2d(1024, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (1): SyncBatchNorm(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (attention): ReceptiveFieldAttention(
+          (_ops): ModuleList(
+            (0): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=32, bias=False)
+              (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (1): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=32, bias=False)
+              (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (2): Sequential(
+              (0): MaxPool2d(kernel_size=5, stride=1, padding=2, dilation=1, ceil_mode=False)
+              (1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=32, bias=False)
+              (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (3): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=32, bias=False)
+              (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (4): NoiseOp()
+            (5): NoiseOp()
+          )
+          (bottle): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (conv1x1): Conv2d(384, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (se): SE(
+            (avg_pool): AdaptiveAvgPool2d(output_size=1)
+            (fc): Sequential(
+              (0): Linear(in_features=512, out_features=128, bias=False)
+              (1): ReLU(inplace=True)
+              (2): Linear(in_features=128, out_features=512, bias=False)
+              (3): Sigmoid()
+            )
+          )
+        )
+      )
+      (1): Bottleneck(
+        (conv1): Conv2d(2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): SyncBatchNorm(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(4, 4), dilation=(4, 4), bias=False)
+        (bn2): SyncBatchNorm(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): SyncBatchNorm(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (attention): ReceptiveFieldAttention(
+          (_ops): ModuleList(
+            (0): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=32, bias=False)
+              (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (1): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=32, bias=False)
+              (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (2): Sequential(
+              (0): MaxPool2d(kernel_size=5, stride=1, padding=2, dilation=1, ceil_mode=False)
+              (1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=32, bias=False)
+              (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (3): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=32, bias=False)
+              (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (4): NoiseOp()
+            (5): NoiseOp()
+          )
+          (bottle): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (conv1x1): Conv2d(384, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (se): SE(
+            (avg_pool): AdaptiveAvgPool2d(output_size=1)
+            (fc): Sequential(
+              (0): Linear(in_features=512, out_features=128, bias=False)
+              (1): ReLU(inplace=True)
+              (2): Linear(in_features=128, out_features=512, bias=False)
+              (3): Sigmoid()
+            )
+          )
+        )
+      )
+      (2): Bottleneck(
+        (conv1): Conv2d(2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): SyncBatchNorm(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(4, 4), dilation=(4, 4), bias=False)
+        (bn2): SyncBatchNorm(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): SyncBatchNorm(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (attention): ReceptiveFieldAttention(
+          (_ops): ModuleList(
+            (0): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=32, bias=False)
+              (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (1): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=32, bias=False)
+              (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (2): Sequential(
+              (0): MaxPool2d(kernel_size=5, stride=1, padding=2, dilation=1, ceil_mode=False)
+              (1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=32, bias=False)
+              (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (3): Sequential(
+              (0): MaxPool2d(kernel_size=3, stride=1, padding=1, dilation=1, ceil_mode=False)
+              (1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=32, bias=False)
+              (2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            )
+            (4): NoiseOp()
+            (5): NoiseOp()
+          )
+          (bottle): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (conv1x1): Conv2d(384, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (se): SE(
+            (avg_pool): AdaptiveAvgPool2d(output_size=1)
+            (fc): Sequential(
+              (0): Linear(in_features=512, out_features=128, bias=False)
+              (1): ReLU(inplace=True)
+              (2): Linear(in_features=128, out_features=512, bias=False)
+              (3): Sigmoid()
+            )
+          )
+        )
+      )
+    )
+  )
+  init_cfg={'type': 'Pretrained', 'checkpoint': 'open-mmlab://resnet50_v1c'}
+  (decode_head): ASPPHead(
+    input_transform=None, ignore_index=255, align_corners=False
+    (loss_decode): CrossEntropyLoss()
+    (conv_seg): Conv2d(512, 19, kernel_size=(1, 1), stride=(1, 1))
+    (dropout): Dropout2d(p=0.1, inplace=False)
+    (image_pool): Sequential(
+      (0): AdaptiveAvgPool2d(output_size=1)
+      (1): ConvModule(
+        (conv): Conv2d(2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): SyncBatchNorm(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (activate): ReLU(inplace=True)
+      )
+    )
+    (aspp_modules): ASPPModule(
+      (0): ConvModule(
+        (conv): Conv2d(2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn): SyncBatchNorm(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (activate): ReLU(inplace=True)
+      )
+      (1): ConvModule(
+        (conv): Conv2d(2048, 512, kernel_size=(3, 3), stride=(1, 1), padding=(12, 12), dilation=(12, 12), bias=False)
+        (bn): SyncBatchNorm(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (activate): ReLU(inplace=True)
+      )
+      (2): ConvModule(
+        (conv): Conv2d(2048, 512, kernel_size=(3, 3), stride=(1, 1), padding=(24, 24), dilation=(24, 24), bias=False)
+        (bn): SyncBatchNorm(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (activate): ReLU(inplace=True)
+      )
+      (3): ConvModule(
+        (conv): Conv2d(2048, 512, kernel_size=(3, 3), stride=(1, 1), padding=(36, 36), dilation=(36, 36), bias=False)
+        (bn): SyncBatchNorm(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (activate): ReLU(inplace=True)
+      )
+    )
+    (bottleneck): ConvModule(
+      (conv): Conv2d(2560, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn): SyncBatchNorm(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (activate): ReLU(inplace=True)
+    )
+  )
+  init_cfg={'type': 'Normal', 'std': 0.01, 'override': {'name': 'conv_seg'}}
+  (auxiliary_head): FCNHead(
+    input_transform=None, ignore_index=255, align_corners=False
+    (loss_decode): CrossEntropyLoss()
+    (conv_seg): Conv2d(256, 19, kernel_size=(1, 1), stride=(1, 1))
+    (dropout): Dropout2d(p=0.1, inplace=False)
+    (convs): Sequential(
+      (0): ConvModule(
+        (conv): Conv2d(1024, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn): SyncBatchNorm(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (activate): ReLU(inplace=True)
+      )
+    )
+  )
+  init_cfg={'type': 'Normal', 'std': 0.01, 'override': {'name': 'conv_seg'}}
+)
+2022-03-20 20:08:52,982 - mmseg - INFO - Loaded 2975 images
+2022-03-20 20:08:57,103 - mmseg - INFO - Loaded 500 images
+2022-03-20 20:08:57,104 - mmseg - INFO - Start running, host: scz0088@g0018, work_dir: /data/run01/scz0088/project/mmsegmentation/work_dirs/pprp_deeplabv3_r50-d8_512x1024_40k_cityscapes_baseline
+2022-03-20 20:08:57,104 - mmseg - INFO - Hooks will be executed in the following order:
+before_run:
+(VERY_HIGH   ) PolyLrUpdaterHook                  
+(NORMAL      ) CheckpointHook                     
+(LOW         ) DistEvalHook                       
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_train_epoch:
+(VERY_HIGH   ) PolyLrUpdaterHook                  
+(LOW         ) IterTimerHook                      
+(LOW         ) DistEvalHook                       
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_train_iter:
+(VERY_HIGH   ) PolyLrUpdaterHook                  
+(LOW         ) IterTimerHook                      
+(LOW         ) DistEvalHook                       
+ -------------------- 
+after_train_iter:
+(ABOVE_NORMAL) OptimizerHook                      
+(NORMAL      ) CheckpointHook                     
+(LOW         ) IterTimerHook                      
+(LOW         ) DistEvalHook                       
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+after_train_epoch:
+(NORMAL      ) CheckpointHook                     
+(LOW         ) DistEvalHook                       
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_val_epoch:
+(LOW         ) IterTimerHook                      
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_val_iter:
+(LOW         ) IterTimerHook                      
+ -------------------- 
+after_val_iter:
+(LOW         ) IterTimerHook                      
+ -------------------- 
+after_val_epoch:
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+after_run:
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+2022-03-20 20:08:57,104 - mmseg - INFO - workflow: [('train', 1)], max: 40000 iters
+2022-03-20 20:08:57,104 - mmseg - INFO - Checkpoints will be saved to /data/run01/scz0088/project/mmsegmentation/work_dirs/pprp_deeplabv3_r50-d8_512x1024_40k_cityscapes_baseline by HardDiskBackend.
+Traceback (most recent call last):
+  File "./tools/train.py", line 240, in <module>
+    main()
+  File "./tools/train.py", line 236, in main
+    meta=meta)
+  File "/data/run01/scz0088/project/mmsegmentation/mmseg/apis/train.py", line 174, in train_segmentor
+    runner.run(data_loaders, cfg.workflow)
+  File "/data/run01/scz0088/env/mmcv/mmcv/runner/iter_based_runner.py", line 134, in run
+    iter_runner(iter_loaders[i], **kwargs)
+  File "/data/run01/scz0088/env/mmcv/mmcv/runner/iter_based_runner.py", line 61, in train
+    outputs = self.model.train_step(data_batch, self.optimizer, **kwargs)
+  File "/data/run01/scz0088/env/mmcv/mmcv/parallel/distributed.py", line 52, in train_step
+    output = self.module.train_step(*inputs[0], **kwargs[0])
+  File "/data/run01/scz0088/project/mmsegmentation/mmseg/models/segmentors/base.py", line 138, in train_step
+    losses = self(**data_batch)
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/site-packages/torch/nn/modules/module.py", line 889, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/data/run01/scz0088/env/mmcv/mmcv/runner/fp16_utils.py", line 109, in new_func
+    return old_func(*args, **kwargs)
+  File "/data/run01/scz0088/project/mmsegmentation/mmseg/models/segmentors/base.py", line 108, in forward
+    return self.forward_train(img, img_metas, **kwargs)
+  File "/data/run01/scz0088/project/mmsegmentation/mmseg/models/segmentors/encoder_decoder.py", line 139, in forward_train
+    x = self.extract_feat(img)
+  File "/data/run01/scz0088/project/mmsegmentation/mmseg/models/segmentors/encoder_decoder.py", line 65, in extract_feat
+    x = self.backbone(img)
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/site-packages/torch/nn/modules/module.py", line 889, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/data/run01/scz0088/project/mmsegmentation/mmseg/models/backbones/resnet_att.py", line 709, in forward
+    x = res_layer(x)
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/site-packages/torch/nn/modules/module.py", line 889, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/site-packages/torch/nn/modules/container.py", line 119, in forward
+    input = module(input)
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/site-packages/torch/nn/modules/module.py", line 889, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/data/run01/scz0088/project/mmsegmentation/mmseg/models/backbones/resnet_att.py", line 339, in forward
+    out = _inner_forward(x)
+  File "/data/run01/scz0088/project/mmsegmentation/mmseg/models/backbones/resnet_att.py", line 327, in _inner_forward
+    out = self.attention(out)
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/site-packages/torch/nn/modules/module.py", line 889, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/data/run01/scz0088/project/mmsegmentation/mmseg/models/backbones/autorf/components.py", line 218, in forward
+    t = self.bottle(x)
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/site-packages/torch/nn/modules/module.py", line 889, in _call_impl
+    result = self.forward(*input, **kwargs)
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/site-packages/torch/nn/modules/conv.py", line 399, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/site-packages/torch/nn/modules/conv.py", line 396, in _conv_forward
+    self.padding, self.dilation, self.groups)
+RuntimeError: Given groups=1, weight of size [16, 64, 1, 1], expected input[2, 256, 128, 256] to have 64 channels, but got 256 channels instead
+Killing subprocess 15526
+Traceback (most recent call last):
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/runpy.py", line 193, in _run_module_as_main
+    "__main__", mod_spec)
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/runpy.py", line 85, in _run_code
+    exec(code, run_globals)
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/site-packages/torch/distributed/launch.py", line 340, in <module>
+    main()
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/site-packages/torch/distributed/launch.py", line 326, in main
+    sigkill_handler(signal.SIGTERM, None)  # not coming back
+  File "/HOME/scz0088/.conda/envs/hb/lib/python3.7/site-packages/torch/distributed/launch.py", line 301, in sigkill_handler
+    raise subprocess.CalledProcessError(returncode=last_return_code, cmd=cmd)
+subprocess.CalledProcessError: Command '['/HOME/scz0088/.conda/envs/hb/bin/python', '-u', './tools/train.py', '--local_rank=0', 'configs/deeplabv3/pprp_deeplabv3_r50-d8_512x1024_40k_cityscapes.py', '--launcher', 'pytorch', '--work-dir', './work_dirs/pprp_deeplabv3_r50-d8_512x1024_40k_cityscapes_baseline']' returned non-zero exit status 1.

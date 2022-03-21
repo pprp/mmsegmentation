@@ -51,6 +51,7 @@ class SE(nn.Module):
     def __init__(self, channel, reduction=16):
         super(SE, self).__init__()
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.channel = channel 
 
         self.fc = nn.Sequential(
             nn.Linear(channel, channel // reduction, bias=False),

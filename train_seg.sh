@@ -13,4 +13,9 @@ export PYTHONUNBUFFERED=1
 # bash ./tools/dist_train.sh configs/deeplabv3/se_deeplabv3_r18b-d8_512x1024_80k_cityscapes.py 1
 # bash ./tools/dist_train.sh configs/deeplabv3/cbam_deeplabv3_r18b-d8_512x1024_80k_cityscapes.py 1
 
-bash ./tools/dist_train.sh configs/deeplabv3/rf_deeplabv3_r18b-d8_512x1024_80k_cityscapes.py 1
+
+# baseline r50
+bash ./tools/dist_train.sh configs/deeplabv3/pprp_deeplabv3_r50-d8_512x1024_40k_cityscapes.py 4 --work-dir ./work_dirs/pprp_deeplabv3_r50-d8_512x1024_40k_cityscapes_baseline_rerun
+
+# r50 + RF
+# bash ./tools/dist_train.sh configs/deeplabv3/pprp_deeplabv3_r50-d8_512x1024_40k_cityscapes.py 1 --work-dir ./work_dirs/pprp_deeplabv3_r50-d8_512x1024_40k_cityscapes_RF

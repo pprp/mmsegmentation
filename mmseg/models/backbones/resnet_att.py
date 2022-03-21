@@ -60,6 +60,7 @@ class BasicBlock(BaseModule):
         self.stride = stride
         self.dilation = dilation
         self.with_cp = with_cp
+
         if att == None:
             self.attention = None 
         elif att == "SE":
@@ -71,6 +72,7 @@ class BasicBlock(BaseModule):
             planes, genotype=Genotype(normal=[('max_pool_3x3', 0), ('max_pool_3x3', 0), ('max_pool_5x5', 1), ('max_pool_3x3', 0), ('noise', 2), ('noise', 1)], normal_concat=range(0, 4))
             # Genotype(normal=[('strippool', 0), ('avg_pool_3x3', 0), ('avg_pool_5x5', 1), ('avg_pool_7x7', 0), ('strippool', 2), ('noise', 1)], normal_concat=range(0, 4))
         )
+
     @property
     def norm1(self):
         """nn.Module: normalization layer after the first convolution layer"""
@@ -135,7 +137,8 @@ class Bottleneck(BaseModule):
                  norm_cfg=dict(type='BN'),
                  dcn=None,
                  plugins=None,
-                 init_cfg=None):
+                 init_cfg=None,
+                 att=None):
         super(Bottleneck, self).__init__(init_cfg)
         assert style in ['pytorch', 'caffe']
         assert dcn is None or isinstance(dcn, dict)
@@ -237,6 +240,19 @@ class Bottleneck(BaseModule):
             self.after_conv3_plugin_names = self.make_block_plugins(
                 planes * self.expansion, self.after_conv3_plugins)
 
+        if att == None:
+            self.attention = None 
+        elif att == "SE":
+            self.attention = SE(planes * self.expansion, reduction=16)
+        elif att == "CBAM":
+            self.attention = CBAM(planes * self.expansion, reduction_ratio=16)
+        elif att == "RF":
+            self.attention = ReceptiveFieldAttention(
+            planes * self.expansion, genotype=Genotype(normal=[('strippool', 0), ('avg_pool_3x3', 0), ('avg_pool_5x5', 1), ('avg_pool_7x7', 0), ('strippool', 2), ('noise', 1)], normal_concat=range(0, 4))
+            #Genotype(normal=[('max_pool_3x3', 0), ('max_pool_3x3', 0), ('max_pool_5x5', 1), ('max_pool_3x3', 0), ('noise', 2), ('noise', 1)], normal_concat=range(0, 4))
+            # Genotype(normal=[('strippool', 0), ('avg_pool_3x3', 0), ('avg_pool_5x5', 1), ('avg_pool_7x7', 0), ('strippool', 2), ('noise', 1)], normal_concat=range(0, 4))
+        )
+
     def make_block_plugins(self, in_channels, plugins):
         """make plugins for block.
 
@@ -307,6 +323,9 @@ class Bottleneck(BaseModule):
 
             if self.with_plugins:
                 out = self.forward_plugin(out, self.after_conv3_plugin_names)
+
+            if self.attention is not None:
+                out = self.attention(out)
 
             if self.downsample is not None:
                 identity = self.downsample(x)
@@ -716,7 +735,7 @@ class ResNetV1c_Att(ResNet_Att):
     """
 
     def __init__(self, **kwargs):
-        super(ResNetV1c, self).__init__(
+        super(ResNetV1c_Att, self).__init__(
             deep_stem=True, avg_down=False, **kwargs)
 
 
@@ -730,5 +749,5 @@ class ResNetV1d_Att(ResNet_Att):
     """
 
     def __init__(self, **kwargs):
-        super(ResNetV1d, self).__init__(
+        super(ResNetV1d_Att, self).__init__(
             deep_stem=True, avg_down=True, **kwargs)
