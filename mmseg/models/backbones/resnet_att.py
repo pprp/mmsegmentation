@@ -10,7 +10,8 @@ from mmcv.utils.parrots_wrapper import _BatchNorm
 
 from ..builder import BACKBONES
 from ..utils import ResLayer
-from .autorf.components import SE,CBAM, ReceptiveFieldAttention
+from .autorf.components import SE,ReceptiveFieldAttention
+from .autorf.cbam import CBAM 
 
 Genotype = namedtuple("Genotype", "normal normal_concat")
 
