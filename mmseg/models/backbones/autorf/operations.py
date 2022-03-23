@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -19,12 +20,14 @@ class StripPool(nn.Module):
         )
 
         self.conv1 = nn.Sequential(
-            nn.Conv2d(inter_channels, inter_channels, (1, 3), 1, (0, 1), bias=False),
+            nn.Conv2d(inter_channels, inter_channels,
+                      (1, 3), 1, (0, 1), bias=False),
             nn.BatchNorm2d(inter_channels),
         )
 
         self.conv2 = nn.Sequential(
-            nn.Conv2d(inter_channels, inter_channels, (3, 1), 1, (1, 0), bias=False),
+            nn.Conv2d(inter_channels, inter_channels,
+                      (3, 1), 1, (1, 0), bias=False),
             nn.BatchNorm2d(inter_channels),
         )
 
@@ -80,7 +83,8 @@ class ConvBnReLU(nn.Sequential):
                 groups=groups,
             ),
         )
-        self.add_module("bn", nn.BatchNorm2d(out_ch, eps=1e-5, momentum=1 - 0.999))
+        self.add_module("bn", nn.BatchNorm2d(
+            out_ch, eps=1e-5, momentum=1 - 0.999))
 
         if relu:
             self.add_module("relu", nn.ReLU())
@@ -167,8 +171,10 @@ class FactorizedReduce(nn.Module):
         super(FactorizedReduce, self).__init__()
         assert C_out % 2 == 0
         self.relu = nn.ReLU(inplace=False)
-        self.conv_1 = nn.Conv2d(C_in, C_out // 2, 1, stride=2, padding=0, bias=False)
-        self.conv_2 = nn.Conv2d(C_in, C_out // 2, 1, stride=2, padding=0, bias=False)
+        self.conv_1 = nn.Conv2d(C_in, C_out // 2, 1,
+                                stride=2, padding=0, bias=False)
+        self.conv_2 = nn.Conv2d(C_in, C_out // 2, 1,
+                                stride=2, padding=0, bias=False)
         self.bn = nn.BatchNorm2d(C_out, affine=affine)
 
     def forward(self, x):
@@ -342,7 +348,8 @@ class ChannelGate(nn.Module):
             else:
                 channel_att_sum = channel_att_sum + channel_att_raw
 
-        scale = torch.sigmoid(channel_att_sum).unsqueeze(2).unsqueeze(3).expand_as(x)
+        scale = torch.sigmoid(channel_att_sum).unsqueeze(
+            2).unsqueeze(3).expand_as(x)
         return x * scale
 
 
@@ -415,7 +422,8 @@ class SpatialGate(nn.Module):
 class CBAM(nn.Module):
     def __init__(self, gate_channels, reduction_ratio=16, pool_types=["avg", "max"]):
         super(CBAM, self).__init__()
-        self.ChannelGate = ChannelGate(gate_channels, reduction_ratio, pool_types)
+        self.ChannelGate = ChannelGate(
+            gate_channels, reduction_ratio, pool_types)
         self.SpatialGate = SpatialGate()
 
     def forward(self, x):
@@ -424,17 +432,51 @@ class CBAM(nn.Module):
         return x_out
 
 
+# class NoiseOp(nn.Module):
+#     def __init__(self, stride, mean, std):
+#         super(NoiseOp, self).__init__()
+#         self.stride = stride
+#         self.mean = mean
+#         self.std = std
+
+#     def forward(self, x):
+#         if self.stride != 1:
+#             x_new = x[:, :, :: self.stride, :: self.stride]
+#         else:
+#             x_new = x
+#         noise = Variable(x_new.data.new(x_new.size()).normal_(self.mean, self.std))
+#         return noise
+
 class NoiseOp(nn.Module):
-    def __init__(self, stride, mean, std):
+    def __init__(self, noise_type='gaussian', factor=1., mean=0.0, noise_mixture="additive", add_noise=False):
         super(NoiseOp, self).__init__()
-        self.stride = stride
+        self.noise_type = noise_type
+        self.factor = factor  # factor for std
         self.mean = mean
-        self.std = std
+        self.noise_mixture = noise_mixture
+        self.add_noise = add_noise
 
     def forward(self, x):
-        if self.stride != 1:
-            x_new = x[:, :, :: self.stride, :: self.stride]
-        else:
-            x_new = x
-        noise = Variable(x_new.data.new(x_new.size()).normal_(self.mean, self.std))
-        return noise
+        if self.training and self.add_noise:
+            if self.noise_type == 'uniform':
+                a = np.sqrt(3*self.factor)
+                noise = self.mean + (-2 * torch.rand_like(x) + 1) * a
+            elif self.noise_type == 'gaussian':
+                # normal distribution
+                std = x.std() * self.factor if self.noise_mixture == 'additive' else self.factor
+                means = self.mean + torch.zeros_like(x, device=torch.device("cuda"), requires_grad=False)
+                noise = torch.normal(means, std, out=None).cuda()
+            else:
+                assert False, 'Not supported noise type'
+
+            decay_rate = 1
+            
+            if self.noise_mixture == 'additive':
+                x = x + noise * decay_rate
+                # x = noise
+            elif self.noise_mixture == 'multiplicative':
+                x = x * noise * decay_rate
+            else:
+                assert False, 'Not supported noise mixture'
+
+        return x

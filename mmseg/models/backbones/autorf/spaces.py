@@ -153,10 +153,8 @@ AVGPOOL_OPS = {
 }
 
 SKIP_OPS = {
-    "noise": lambda C, stride, affine: NoiseOp(stride, 0.0, 1.0),
-    "skip_connect": lambda C, stride, affine: Identity()
-    if stride == 1
-    else FactorizedReduce(C, C, affine=affine),
+    "noise": lambda C, stride, affine: NoiseOp(factor=1., mean=0.),
+    "skip_connect": lambda C, stride, affine: Identity() if stride == 1 else FactorizedReduce(C, C, affine=affine),
 }
 
 
