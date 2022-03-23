@@ -115,7 +115,7 @@ log_config = dict(
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
 load_from = None
-resume_from = "/HOME/scz0088/run/project/mmsegmentation/work_dirs/pprp_deeplabv3_r50-d8_512x1024_40k_cityscapes_RF_rerun_fix_noise/latest.pth"
+resume_from = "/HOME/scz0088/run/project/mmsegmentation/work_dirs/pprp_deeplabv3_r50-d8_512x1024_40k_cityscapes_RF_rerun_fix_noise_continue_50k/latest.pth"
 workflow = [('train', 1)]
 cudnn_benchmark = True
 
@@ -126,6 +126,6 @@ optimizer_config = dict()
 # learning policy
 lr_config = dict(policy='poly', power=0.9, min_lr=1e-4, by_epoch=False)
 # runtime settings
-runner = dict(type='IterBasedRunner', max_iters=50000)
+runner = dict(type='IterBasedRunner', max_iters=80000)
 checkpoint_config = dict(by_epoch=False, interval=4000, save_last=True, max_keep_ckpts=2)
 evaluation = dict(interval=4000, metric='mIoU', pre_eval=True)

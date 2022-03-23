@@ -30,4 +30,16 @@ export PYTHONUNBUFFERED=1
 # bash ./tools/dist_train.sh configs/deeplabv3/deeplabv3_r50-d8_512x1024_40k_cityscapes.py 4 --work-dir ./work_dirs/deeplabv3_r50-d8_512x1024_40k_cityscapes_baseline
 
 # r50 + RF 继续跑 --auto-resume
-bash ./tools/dist_train.sh configs/deeplabv3/pprp_deeplabv3_r50-d8_512x1024_40k_cityscapes.py 4 --work-dir ./work_dirs/pprp_deeplabv3_r50-d8_512x1024_40k_cityscapes_RF_rerun_fix_noise_continue_50k
+# bash ./tools/dist_train.sh configs/deeplabv3/pprp_deeplabv3_r50-d8_512x1024_40k_cityscapes.py 4 --work-dir ./work_dirs/pprp_deeplabv3_r50-d8_512x1024_40k_cityscapes_RF_rerun_fix_noise_continue_80k
+
+# without aspp deeplab baseline 
+# bash ./tools/dist_train.sh configs/deeplabv3/wo_aspp_deeplabv3_r50-d8_512x1024_40k_cityscapes.py 4 --work-dir ./work_dirs/without_aspp_deeplabv3_40k_baseline
+
+# without aspp deeplab RF 
+# bash ./tools/dist_train.sh configs/deeplabv3/wo_aspp_deeplabv3_r50-d8_512x1024_40k_cityscapes.py 4 --work-dir ./work_dirs/without_aspp_deeplabv3_40k_RF
+
+# without aspp deeplab SE
+# bash ./tools/dist_train.sh configs/deeplabv3/wo_aspp_deeplabv3_r50-d8_512x1024_40k_cityscapes.py 4 --work-dir ./work_dirs/without_aspp_deeplabv3_40k_SE
+
+# without aspp deeplab CBAM
+bash ./tools/dist_train.sh configs/deeplabv3/wo_aspp_deeplabv3_r50-d8_512x1024_40k_cityscapes.py 4 --work-dir ./work_dirs/without_aspp_deeplabv3_40k_CBAM
