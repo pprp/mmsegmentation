@@ -42,4 +42,13 @@ export PYTHONUNBUFFERED=1
 # bash ./tools/dist_train.sh configs/deeplabv3/wo_aspp_deeplabv3_r50-d8_512x1024_40k_cityscapes.py 4 --work-dir ./work_dirs/without_aspp_deeplabv3_40k_SE
 
 # without aspp deeplab CBAM
-bash ./tools/dist_train.sh configs/deeplabv3/wo_aspp_deeplabv3_r50-d8_512x1024_40k_cityscapes.py 4 --work-dir ./work_dirs/without_aspp_deeplabv3_40k_CBAM
+# bash ./tools/dist_train.sh configs/deeplabv3/wo_aspp_deeplabv3_r50-d8_512x1024_40k_cityscapes.py 4 --work-dir ./work_dirs/without_aspp_deeplabv3_40k_CBAM
+
+#######################################################################
+# bash ./tools/dist_train.sh configs/fcn/fcn_r50-d8_512x1024_40k_cityscapes.py 4 
+
+# bash ./tools/dist_train.sh configs/fcn/fcn_r50_d8_40k_cityscape_att.py 4 --work-dir ./work_dirs/fcn_r50_rf_80k
+
+# bash ./tools/dist_train.sh configs/fcn/fcn_r50_d8_40k_cityscape_att.py 4 --work-dir ./work_dirs/fcn_r50_se_40k 
+
+bash ./tools/dist_train.sh configs/fcn/fcn_r50_d8_40k_cityscape_att.py 4 --work-dir ./work_dirs/fcn_r50_cbam_40k 
